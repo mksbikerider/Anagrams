@@ -1,0 +1,88 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.6.RELEASE")
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
+    }
+}
+
+plugins {
+    id "org.asciidoctor.convert" version "1.5.6"
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'org.asciidoctor.convert'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.7'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.7'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.7'
+
+    compile("org.springframework.boot:spring-boot-starter-web:1.5.9.RELEASE"){
+        exclude group: 'ch.qos.logback'
+    }
+    compile 'org.springframework.restdocs:spring-restdocs-mockmvc:2.0.0.RELEASE'
+    compile 'org.springframework:spring-core:5.0.2.RELEASE'
+    compile 'org.springframework:spring-context:5.0.2.RELEASE'
+    compile 'org.springframework:spring-aop:5.0.2.RELEASE'
+    compile 'org.springframework:spring-beans:5.0.2.RELEASE'
+    compile 'org.springframework:spring-expression:5.0.2.RELEASE'
+    compile 'org.springframework:spring-web:5.0.2.RELEASE'
+    compile 'org.springframework:spring-webmvc:5.0.2.RELEASE'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.9.3'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
+
+
+    runtime "javax.servlet:jstl:1.2"
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat:1.5.9.RELEASE"){
+        exclude group: 'ch.qos.logback'
+    }
+    providedRuntime "org.apache.tomcat.embed:tomcat-embed-jasper:9.0.0.M11"
+
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.0.2")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.2")
+    testRuntime("org.apiguardian:apiguardian-api:1.0.0")
+
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.0.RELEASE'
+    testCompile 'org.springframework.restdocs:spring-restdocs-core:2.0.0.RELEASE'
+    testCompile ('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.0.RELEASE'){
+        exclude group: 'org.springframework'
+    }
+    testCompile 'org.springframework:spring-test:5.0.2.RELEASE'
+    testCompile 'org.hamcrest:hamcrest-core:1.3'
+    testCompile 'org.skyscreamer:jsonassert:1.5.0'
+
+}
+
+springBoot {
+    mainClass = 'name.msutherland.config.SpringStart'
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+test {
+    outputs.dir snippetsDir
+}
+
+
+asciidoctor{
+    sourceDir = snippetsDir
+    attributes \
+     'endpoint-url': 'http://example.org',
+     'source-highlighter': 'coderay'
+}
+
+asciidoctor.dependsOn(test)
+
